@@ -1,17 +1,14 @@
 import React from 'react';
 
 class UserInfo extends React.Component {
-    // constructor(props) {
-    //     super(props);
-    // }
-    
 
-    render() {
+    render() {  
         const user = this.props.user;
 
         return (this.props.user ? (
-            <div className="overlay" onClick={this.props.onClose}>
-                <div className="modal" onClick={(e)=> e.stopPropagation()}>
+           
+                <div className="user-info" onClick={(e)=> e.stopPropagation()}>
+                    <div>
                     <p>Выбран пользователь <b>{user.firstName} {user.lastName}</b></p>
                     <p>Описание:
                         <textarea defaultValue={user.description}></textarea>
@@ -20,9 +17,10 @@ class UserInfo extends React.Component {
                     <p>Город: <b>{user.city}</b></p>
                     <p>Провинция/штат: <b>{user.state}</b></p>
                     <p>Индекс: <b>{user.zip}</b></p>
-                    <button onClick={this.props.onClose}>X</button>
+                    <button className="close-button" onClick={this.props.onClose}>X</button>
+                    </div>
                 </div>
-            </div>
+           
         ) : (''))
     }
 

@@ -2,24 +2,11 @@ import React from 'react';
 import _ from 'lodash';
 
 class Pagination extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            pages: this.props.pages,
-            page: this.props.page,
-        };
 
-        this.handleClick = this.handleClick.bind(this)
-    }
-
-    handleClick(e) {
+    handleClick = (e) => {
         e.preventDefault();
         
         const page = Number (_.last(e.target.href.split('/')))
-        // console.log(page)
-        this.setState({
-            page: page,
-        })
         this.props.onSelectPage(page) 
     }
 

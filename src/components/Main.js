@@ -2,6 +2,9 @@ import React from 'react';
 import Spinner from './Spinner.js';
 import Pagination from './Pagination.js'
 import Table from './Table.js'
+import AddUserForm from './AddUserForm'
+// import SearchBar from './SearchBar'
+//import SimpleReactValidator from 'simple-react-validator';
 
 class Main extends React.Component {
     constructor(props) {
@@ -12,11 +15,13 @@ class Main extends React.Component {
             pages: [],
             users: [],
             user: null,
-            rows: 32,
+            rows: null,
+            data: null,
+            filtered: null,
         };
 
         this.handleChanges = this.handleChanges.bind(this);
-        this.loadUsers = this.loadUsers.bind(this)
+        this.selectRows = this.selectRows.bind(this)
         this.getData = this.getData.bind(this);
         this.addUser = this.addUser.bind(this);
         // this.sortUsers = this.sortUsers.bind(this);
@@ -29,11 +34,10 @@ class Main extends React.Component {
         return data;
     }
 
-    async handleChanges(data) {
-        if (!data) data = this.getData()
-        const pages = await Math.round(data.length / 50); //по 50 элементов на страницу
+    async handleChanges(users) {
+        const pages = await Math.round(users.length / 50); //по 50 элементов на страницу
         this.setState({
-            users: data,
+            users: users,
             pages: pages,
             isLoaded: true,
         })
@@ -47,59 +51,74 @@ class Main extends React.Component {
         this.handleChanges(this.state.users)
     }
 
-    async loadUsers(e) {
+    filterUsers = (users) => {
+        //const pages =  Math.round (users.length / 50) 
+        this.setState({
+            filtered: users,
+        })
+    }
+    
+    async selectRows(e) {
         this.setState({
             rows: e.target.value,
             isLoaded: false,
         });
-        //console.log(e.target.value)
         try {
             this.getData(e.target.value).then(result=>{
+                this.setState({
+                    data: result,
+                    
+                })
                 this.handleChanges(result)
+                this.filterUsers(result)
             })
-            // this.handleChanges(data)
         } catch (e) {
             console.log(e)
         }
     }
 
-    componentDidMount() {
+    addUser = async (user) => {
+        const allUsers = [user, ...this.state.data];
+        await this.handleChanges(allUsers)
+        const filtered = [user, ...this.state.filtered]
+        await this.setState({
+            data: allUsers,
+            filtered: filtered,
+        })
+        console.log(this.state)
     }
-
-    addUser(user) {
-        //user.validate прикрутим библу
-        const allUsers = [...this.state.users, user];
-        this.handleChanges(allUsers)
-    }
-
-    // async sortUsers(e) {
-    //     this.setState({
-    //         isLoaded: false
-    //     })
-    //     const field = e.target.value;
-    //     const sorted = await this.state.users.sort((first, second) => first[field] - second[field])
-    //     this.handleChanges(sorted);
-    // }
 
     render() {
         if (!this.state.isLoaded) return <Spinner />
+        const container = !this.state.rows ? 
+        <h1>Выбирайте кнопочку...</h1> :
+        (<div>
+            <Pagination
+                page={this.state.page}
+                pages={this.state.pages}
+                onSelectPage={this.selectPage}
+            />
+            {/* <AddUserForm 
+                onAddUser={this.addUser}
+            /> */}
+            <Table
+                onAddUser={this.addUser}
+                isLoaded={this.state.isLoaded}
+                page={this.state.page}
+                users={this.state.users}
+                onHandleChange={this.handleChanges}
+                onFilterUsers={this.filterUsers}
+                filteredUsers={this.state.filtered}
+                onSelectPage={this.selectPage}
+                data={this.state.data}
+            // sortUsers={this.sortUsers}
+            />
+        </div>);
         return (
             <div>
-                <button onClick={this.loadUsers} value="32">small</button>
-                <button onClick={this.loadUsers} value="1000">big</button>
-                <Pagination 
-                    page={this.state.page}
-                    pages={this.state.pages}
-                    onSelectPage={this.selectPage}
-                />
-                <Table 
-                    isLoaded={this.state.isLoaded}
-                    page={this.state.page}
-                    users={this.state.users}
-                    onHandleChange={this.handleChanges} 
-                    addUser={this.addUser}
-                    // sortUsers={this.sortUsers}
-                />
+                <button onClick={this.selectRows} value="32">Поменьше...</button>
+                <button onClick={this.selectRows} value="1000">Побольше!</button>
+                {container}
             </div>
         )
     }
