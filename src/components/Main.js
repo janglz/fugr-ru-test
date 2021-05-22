@@ -2,9 +2,6 @@ import React from 'react';
 import Spinner from './Spinner.js';
 import Pagination from './Pagination.js'
 import Table from './Table.js'
-import AddUserForm from './AddUserForm'
-// import SearchBar from './SearchBar'
-//import SimpleReactValidator from 'simple-react-validator';
 
 class Main extends React.Component {
     constructor(props) {
@@ -17,61 +14,43 @@ class Main extends React.Component {
             user: null,
             rows: null,
             data: null,
-            filtered: null,
+            usersToShow: [],
+            searchQuery: '',
+            sortedBy: null,
         };
-
-        this.handleChanges = this.handleChanges.bind(this);
-        this.selectRows = this.selectRows.bind(this)
-        this.getData = this.getData.bind(this);
-        this.addUser = this.addUser.bind(this);
-        // this.sortUsers = this.sortUsers.bind(this);
-        this.selectPage = this.selectPage.bind(this);
     }
 
-    async getData(rows = this.state.rows) {
+    getData = async (rows) => {
         const data = await fetch(`http://www.filltext.com/?rows=${rows}&id={number|1000}&firstName={firstName}&lastName={lastName}&email={email}&phone={phone|(xxx)xxx-xx-xx}&address={addressObject}&description={lorem|32}`).
             then(response => response.json())
         return data;
     }
 
-    async handleChanges(users) {
-        const pages = await Math.round(users.length / 50); //по 50 элементов на страницу
-        this.setState({
-            users: users,
-            pages: pages,
-            isLoaded: true,
-        })
-    }
-
-    async selectPage(page = 1) {
+    selectPage = async (page) => {
+        const pages = Math.ceil(this.state.users.length / 50);
+        const curPage = page <= pages ? page : pages;
         await this.setState({
-            isLoaded: false,
-            page: page,
+            page: curPage,
+            pages: pages,
         })
-        this.handleChanges(this.state.users)
-    }
-
-    filterUsers = (users) => {
-        //const pages =  Math.round (users.length / 50) 
-        this.setState({
-            filtered: users,
-        })
+        const users = await this.findUsersOnCurrentPage([...this.state.users]);
+        await this.setState({ usersToShow: users, })
     }
     
-    async selectRows(e) {
+    selectRows = async (e) => {
         this.setState({
             rows: e.target.value,
             isLoaded: false,
         });
         try {
-            this.getData(e.target.value).then(result=>{
+            await this.getData(e.target.value).then(result=>{
                 this.setState({
                     data: result,
-                    
-                })
-                this.handleChanges(result)
-                this.filterUsers(result)
-            })
+                    users: result,
+                    isLoaded: true,
+                })  
+            });
+            await this.selectPage(1)
         } catch (e) {
             console.log(e)
         }
@@ -79,39 +58,107 @@ class Main extends React.Component {
 
     addUser = async (user) => {
         const allUsers = [user, ...this.state.data];
-        await this.handleChanges(allUsers)
-        const filtered = [user, ...this.state.filtered]
+        const filtered = [user, ...this.state.users]
         await this.setState({
             data: allUsers,
-            filtered: filtered,
+            users: filtered,
         })
-        console.log(this.state)
+        await this.selectPage(1)
+        
+    }
+
+    findUsersOnCurrentPage = (users) => {
+        const offset = this.state.page * 50;
+        return [...users.slice(offset - 50, offset)];    
+    }
+
+    search = async (users, query) => {
+        if (!query || query === '') {
+            return users;
+        }
+        let filteredUsers = await users.filter((user) => Object.values(user).find(entry=> {
+            return String(entry).indexOf(query) !== -1;
+        })) 
+        return filteredUsers;
+    }
+
+    sortUsers = async (e) => {
+        const value = e.currentTarget.getAttribute('value');
+        const sortedBy =
+            this.state.sortedBy === value ?
+            `${value}-reverse` : value
+        const bool =
+            sortedBy === value ?
+            1 : -1;
+
+        const sortByValue = (first, second) => first[value] > second[value] ? bool : -(bool)
+        const sortedAllUsers = await [...this.state.data].sort(sortByValue);
+
+        await this.setState( {
+            sortedBy: sortedBy, 
+        })
+        if (this.state.searchQuery === '' || this.state.searchQuery === null) {  
+            await this.setState({ 
+                data: await sortedAllUsers, 
+                users: sortedAllUsers,
+                usersToShow: await this.findUsersOnCurrentPage(sortedAllUsers)
+            })
+        } else {
+            const currentPageUsers = await this.findUsersOnCurrentPage([...this.state.users]);
+            const sorted = await currentPageUsers.sort(sortByValue); 
+            const filtered = await this.search(sorted, this.state.searchQuery); 
+            await this.setState({ 
+                usersToShow: await filtered,       
+            })
+        }
+    }
+
+
+    filterUsers = async (e) => { //поиск по странице
+        const query = await e.currentTarget.value
+
+        await this.setState({
+            searchQuery: query,
+        })
+
+        const currentPageUsers = await this.findUsersOnCurrentPage([...this.state.data]);  
+        const filtered = await this.search(currentPageUsers, this.state.searchQuery);  
+
+        await this.setState({
+            usersToShow: filtered,
+        })
+    }
+
+    searchUsers = async () => { //поиск по всем юзерам
+        const query = this.state.searchQuery;
+        
+        const filtered = await this.search([...this.state.data], query); 
+        await this.setState({
+            users: filtered,
+        })
+        await this.selectPage(1) 
     }
 
     render() {
         if (!this.state.isLoaded) return <Spinner />
         const container = !this.state.rows ? 
-        <h1>Выбирайте кнопочку...</h1> :
+        (<h1>Выбирайте кнопочку...</h1>)
+        :
         (<div>
             <Pagination
                 page={this.state.page}
                 pages={this.state.pages}
                 onSelectPage={this.selectPage}
             />
-            {/* <AddUserForm 
-                onAddUser={this.addUser}
-            /> */}
             <Table
-                onAddUser={this.addUser}
                 isLoaded={this.state.isLoaded}
-                page={this.state.page}
-                users={this.state.users}
-                onHandleChange={this.handleChanges}
-                onFilterUsers={this.filterUsers}
-                filteredUsers={this.state.filtered}
-                onSelectPage={this.selectPage}
-                data={this.state.data}
-            // sortUsers={this.sortUsers}
+                sortedBy={this.state.sortedBy}
+                users={this.state.usersToShow}
+                searchQuery={this.state.searchQuery}
+                onAddUser={this.addUser}
+                onFilter={this.filterUsers}
+                onSearch={this.searchUsers}
+                onSort={this.sortUsers}
             />
         </div>);
         return (

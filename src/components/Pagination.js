@@ -1,13 +1,13 @@
 import React from 'react';
-import _ from 'lodash';
 
 class Pagination extends React.Component {
 
-    handleClick = (e) => {
+    handleClick = async (e) => {
+        const page = Number (e.target.getAttribute('value'))
+        await this.props.onSelectPage(page) 
         e.preventDefault();
+        e.stopPropagation();
         
-        const page = Number (_.last(e.target.href.split('/')))
-        this.props.onSelectPage(page) 
     }
 
     render() {
@@ -17,7 +17,7 @@ class Pagination extends React.Component {
         
         const currentPage = this.props.page;
         const pagesBlock = pages.map(page=>{
-            return <a key={page} className={`page-href ${ currentPage === page ? ' active' : ''}`} href={page} onClick={this.handleClick}>{page}</a>
+            return <a key={page} value={page} className={`page-href ${ currentPage === page ? ' active' : ''}`} href={page} onClick={this.handleClick}>{page}</a>
         })
         return (
             <div>

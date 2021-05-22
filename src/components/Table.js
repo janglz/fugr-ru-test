@@ -2,22 +2,18 @@ import React from 'react';
 import Spinner from './Spinner.js';
 import UserInfo from './UserInfo.js';
 import AddUserForm from './AddUserForm';
-import _ from 'lodash';
 
 class Table extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isLoaded: this.props.isLoaded,
             selectedUser: null,
-            sortedBy: null,
-            searchQuery: '',
-        };
+        };  
     }
 
     selectUser = (e) => {
         const userId = e.currentTarget.getAttribute('value');
-        const user = this.props.users.find(user => user.id == userId);
+        const user = this.props.users.find(user =>  this.props.users.indexOf(user) === Number(userId));
         const no = 'данные не определены'
         this.setState({
             selectedUser: {
@@ -36,147 +32,56 @@ class Table extends React.Component {
             selectedUser: null,
         })
     }
-
-    handleChanges = async (users) => {
-        await this.setState({
-            isLoaded: true,
-        })
-    }
-
-    componentDidMount() {
-        this.handleChanges(this.props.users);
-        this.props.onFilterUsers(this.currentPageUsers(this.props.users))
-    }
-
-    sortUsers = async (e) => {
-        this.setState({
-            isLoaded:false,
-        })
-        
-        const entry = e.currentTarget.getAttribute('value'); 
-        const sortedBy = 
-        this.state.sortedBy === entry ?
-            `${entry}-reverse` : entry
-        const bool = 
-            sortedBy === entry ?
-            1 : -1;
-
-        const currentPageUsers = this.currentPageUsers(this.props.data)
-        const filtered = await this.search(currentPageUsers, this.state.searchQuery)
-        
-        const sorted = await filtered.sort((first, second) => first[entry] > second[entry] ? bool : -(bool))
-
-        this.setState({
-            sortedBy: sortedBy,
-        });
-        this.props.onFilterUsers(this.currentPageUsers(sorted))
-
-        this.handleChanges(filtered)
-    }
-
-    currentPageUsers = (users) => {
-        const offset = this.props.page * 50;
-        return users.slice(offset - 50, offset);
-    }
-
-    search = (users, query) => {
-        if (!query) return users;
-        const searchUsers = users.filter((user) => Object.values(user).find(entry=> {
-            return String(entry).indexOf(query) !== -1;
-        }))
-        return searchUsers;
-    }
-
-    searchOnPage = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const query = await e.target.value;
-        const usersOnPage = await this.currentPageUsers(this.props.data)
-        const filtered = await this.search(usersOnPage, query)
-
-        await this.setState({
-            searchQuery: query,
-        })
-        this.props.onFilterUsers(filtered)
-    }
-
-    globalSearch = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        //const query = await e.target.getAttribute('value');
-        await this.setState({
-            // searchQuery: query,
-            isLoaded: false,
-        })
-        
-        const filtered = await this.search(this.props.data, this.state.searchQuery);
-        await this.props.onHandleChange(filtered)
-        await this.props.onSelectPage(1)
-        await this.setState({
-            isLoaded: true,
-        })
-    }
-
     
+    search = (e) => {
+        e.preventDefault();
+        this.props.onSearch();
+    }
     
     render() {
-        if (!this.state.isLoaded) return <Spinner />
-        console.log(this.state)
-        //this.props.onFilterUsers(this.currentPageUsers(this.props.users))
-        const usersOnThisPage = this.currentPageUsers(this.props.users)
-
         const setClass = (el) => {
             let theadClass = 'th '
-            if (this.state.sortedBy === el) theadClass += 'selected';
-            if (this.state.sortedBy === `${el}-reverse`) theadClass += 'selected reversed'
+            if (this.props.sortedBy === el) theadClass += 'selected';
+            if (this.props.sortedBy === `${el}-reverse`) theadClass += 'selected reversed'
             return theadClass;
         }
 
         const fields = ['id', 'firstName', 'lastName', 'email', 'phone']
         
-        const rows = usersOnThisPage.map(user => {
-            let id = _.uniqueId();
+        const rows = this.props.users.map((user, i) => {
             return (
-                <tr onClick={this.selectUser} key={user.id + id} value={user.id}>
-                    {
-                        fields.map(el => {
-                            return <td key={el}>{user[el]}</td>
-                        })
-                    }
-                </tr>
+                <tr onClick={this.selectUser} key={i} value={i}>{
+                    fields.map(el => {
+                        return <td key={el}>{user[el]}</td>
+                    })
+                }</tr>
             )
         })
 
         const head = (
-            <tr>
-                {
-                    fields.map(el => {
-                        return <th onClick={this.sortUsers} value={el} key={el}>{el}<span className={`${setClass(el)}`} ></span></th>
-                    })
-                }
-            </tr>
+            <tr>{
+                fields.map(el => {
+                    return <th onClick={this.props.onSort} value={el} key={el}>{el}<span className={`${setClass(el)}`} ></span></th>
+                })
+            }</tr>
         )
         
 
         const searchBar = (
-            <form className="search-bar" onSubmit={this.globalSearch}>
+            <form className="search-bar" onSubmit={this.search}>
                 <label>
                     Поиск:
-                    <input type="text" name="search" onInput={this.searchOnPage} defaultValue={this.state.searchQuery} value={String (this.state.searchQuery)}></input>
+                    <input type="text" name="search" onInput={this.props.onFilter} value={String (this.props.searchQuery)} />
                 </label>
                 <input type="submit" value="поиск" />
             </form>
         )
 
-        const tableContent = this.props.filteredUsers[0] ?  (
+        const tableContent = this.props.users[0] ?  (
             (<div>
                 <table className="table">
-                    <thead>
-                    {head}
-                    </thead>
-                    <tbody>
-                        {rows}
-                    </tbody>
+                    <thead>{head}</thead>
+                    <tbody>{rows}</tbody>
                 </table>
                 <UserInfo user={this.state.selectedUser} onClose={this.clearSelectedUser}/>
             </div>)
@@ -185,9 +90,7 @@ class Table extends React.Component {
         return (
             <div>
                 {searchBar}
-                <AddUserForm 
-                    onAddUser={this.props.onAddUser}
-                />
+                <AddUserForm onAddUser={this.props.onAddUser} />
                 {tableContent}
             </div>
         )

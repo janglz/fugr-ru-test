@@ -53,7 +53,6 @@ class AddUserForm extends React.Component {
             this.closeForm()
         } else {
             this.validator.showMessages();
-            this.forceUpdate();
         }
     }
 

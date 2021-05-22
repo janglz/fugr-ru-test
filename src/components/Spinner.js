@@ -5,7 +5,7 @@ export default class Spinner extends React.Component {
     render() {
         return (
             <div className="loader-container">
-                <img src={spinner} className="loader-img" alt="logo" />
+                <img src={spinner} alt="Подождите, данные загружаются" className="loader-img" />
             </div>
         )
     }
