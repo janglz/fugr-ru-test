@@ -68,41 +68,68 @@ class AddUserForm extends React.Component {
                 <div>
                 <div className="form-group">
                     <label>ID</label>
-                    <input className="form-control" defaultValue={this.state.id} id="id" onChange={this.handleChange} onBlur={() => this.validator.showMessageFor('id')} />
+                    <input
+                        className="form-control"
+                        defaultValue={this.state.id}
+                        id="id"
+                        onChange={this.handleChange}
+                        onBlur={() => this.validator.showMessageFor('id')}
+                    />
                     <span className="input-invalid">{this.validator.message('id', this.state.id, 'required|numeric|min:0,num')}</span>
                 </div>
-
                 <div className="form-group">
                     <label>firstName</label>
-                    <input className="form-control" defaultValue={this.state.firstName} id="firstName" onChange={this.handleChange} onBlur={() => this.validator.showMessageFor('name')} />
+                    <input 
+                        className="form-control" 
+                        defaultValue={this.state.firstName} 
+                        id="firstName" 
+                        onChange={this.handleChange} 
+                        onBlur={() => this.validator.showMessageFor('name')} 
+                    />
                     <span className="input-invalid">{this.validator.message('name', this.state.firstName, 'required|name')}</span>
                 </div>
-
                 <div className="form-group">
                     <label>lastName</label>
-                    <input className="form-control" defaultValue={this.state.lastName} id="lastName" onChange={this.handleChange} onBlur={() => this.validator.showMessageFor('last name')} />
+                    <input 
+                        className="form-control" 
+                        defaultValue={this.state.lastName} 
+                        id="lastName" 
+                        onChange={this.handleChange} 
+                        onBlur={() => this.validator.showMessageFor('last name')} 
+                    />
                     <span className="input-invalid">{this.validator.message('last name', this.state.lastName, 'required|name')}</span>
                 </div>
-
-
                 <div className="form-group">
                     <label>email</label>
-                    <input className="form-control" defaultValue={this.state.email} id="email" onChange={this.handleChange} onBlur={() => this.validator.showMessageFor('email')} />
+                    <input 
+                        className="form-control" 
+                        defaultValue={this.state.email} 
+                        id="email" 
+                        onChange={this.handleChange} 
+                        onBlur={() => this.validator.showMessageFor('email')} 
+                    />
                     <span className="input-invalid">{this.validator.message('email', this.state.email, 'required|email')}</span>
                 </div>
-
                 <div className="form-group">
                     <label>phone</label>
-                    <input className="form-control" defaultValue={this.state.phone} id="phone" onChange={this.handleChange} onBlur={() => this.validator.showMessageFor('phone')} />
+                    <input 
+                        className="form-control"
+                        defaultValue={this.state.phone} 
+                        id="phone" 
+                        onChange={this.handleChange} 
+                        onBlur={() => this.validator.showMessageFor('phone')} 
+                    />
                     <span className="input-invalid">{this.validator.message('phone', this.state.phone, 'required|phone')}</span>
                 </div>
-
-                <button className="btn btn-primary" onClick={this.submitForm}>Добавить в таблицу</button>
+                <button 
+                    className="btn btn-primary" 
+                    onClick={this.submitForm}
+                    >Добавить в таблицу
+                </button>
                 </div>
             </div>
             </div>
         );
-
         return this.state.isActive ? form : addUserButton
     }
 }

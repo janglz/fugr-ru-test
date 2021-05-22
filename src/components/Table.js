@@ -1,5 +1,4 @@
 import React from 'react';
-import Spinner from './Spinner.js';
 import UserInfo from './UserInfo.js';
 import AddUserForm from './AddUserForm';
 
