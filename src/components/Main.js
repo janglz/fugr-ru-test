@@ -73,12 +73,11 @@ class Main extends React.Component {
     }
 
     search = async (users, query) => {
-        if (!query || query === '') {
-            return users;
-        }
+        if (!query || query === '') return users;
+
         let filteredUsers = await users.filter((user) => Object.values(user).find(entry=> {
             return String(entry).indexOf(query) !== -1;
-        })) 
+        }));
         return filteredUsers;
     }
 
@@ -96,7 +95,6 @@ class Main extends React.Component {
 
         await this.setState( {
             sortedBy: sortedBy, 
-            //users: sortedAllUsers,
         })
         if (this.state.searchQuery === '' || this.state.searchQuery === null) {  
             await this.setState({ 
@@ -105,30 +103,23 @@ class Main extends React.Component {
                 usersToShow: await this.findUsersOnCurrentPage(sortedAllUsers)
             })
         } else {
-            //await this.selectPage(1)
             const filtered = await this.search(sortedAllUsers, this.state.searchQuery); 
-            const currentPageUsers = await this.findUsersOnCurrentPage(filtered);
-            //const sorted = await currentPageUsers.sort(sortByValue); 
-           
+            const currentPageUsers = await this.findUsersOnCurrentPage(filtered);           
             await this.setState({ 
                 usersToShow: await currentPageUsers,     
                 users: filtered,
-            })
-            
+            })  
         }
     }
 
 
     filterUsers = async (e) => { //поиск по странице
         const query = await e.currentTarget.value
-
         await this.setState({
             searchQuery: query,
         })
-
         const currentPageUsers = await this.findUsersOnCurrentPage([...this.state.data]);  
         const filtered = await this.search(currentPageUsers, this.state.searchQuery);  
-
         await this.setState({
             usersToShow: filtered,
         })
@@ -136,7 +127,6 @@ class Main extends React.Component {
 
     searchUsers = async () => { //поиск по всем юзерам
         const query = this.state.searchQuery;
-        
         const filtered = await this.search([...this.state.data], query); 
         await this.setState({
             users: filtered,
