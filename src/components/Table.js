@@ -70,7 +70,7 @@ class Table extends React.Component {
         const searchBar = (
             <form className="search-bar" onSubmit={this.search}>
                 <label>
-                    Поиск:
+                    Фильтр:
                     <input type="text" name="search" onInput={this.props.onFilter} value={String (this.props.searchQuery)} />
                 </label>
                 <input type="submit" value="поиск" />

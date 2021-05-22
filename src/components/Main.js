@@ -96,6 +96,7 @@ class Main extends React.Component {
 
         await this.setState( {
             sortedBy: sortedBy, 
+            //users: sortedAllUsers,
         })
         if (this.state.searchQuery === '' || this.state.searchQuery === null) {  
             await this.setState({ 
@@ -104,12 +105,16 @@ class Main extends React.Component {
                 usersToShow: await this.findUsersOnCurrentPage(sortedAllUsers)
             })
         } else {
-            const currentPageUsers = await this.findUsersOnCurrentPage([...this.state.users]);
-            const sorted = await currentPageUsers.sort(sortByValue); 
-            const filtered = await this.search(sorted, this.state.searchQuery); 
+            //await this.selectPage(1)
+            const filtered = await this.search(sortedAllUsers, this.state.searchQuery); 
+            const currentPageUsers = await this.findUsersOnCurrentPage(filtered);
+            //const sorted = await currentPageUsers.sort(sortByValue); 
+           
             await this.setState({ 
-                usersToShow: await filtered,       
+                usersToShow: await currentPageUsers,     
+                users: filtered,
             })
+            
         }
     }
 
