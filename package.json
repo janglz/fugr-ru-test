@@ -1,5 +1,6 @@
 {
-  "name": "https://janglz.github.io/fugr-ru-test/",
+  "name": "fugr-ru-test",
+  "homepage": "https://janglz.github.io/fugr-ru-test/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
