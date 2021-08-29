@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/fugr-ru-test/static/css/main.d8dc4635.chunk.css",
-    "main.js": "/fugr-ru-test/static/js/main.06764730.chunk.js",
-    "main.js.map": "/fugr-ru-test/static/js/main.06764730.chunk.js.map",
+    "main.js": "/fugr-ru-test/static/js/main.eb8ba7fd.chunk.js",
+    "main.js.map": "/fugr-ru-test/static/js/main.eb8ba7fd.chunk.js.map",
     "runtime-main.js": "/fugr-ru-test/static/js/runtime-main.9861fdff.js",
     "runtime-main.js.map": "/fugr-ru-test/static/js/runtime-main.9861fdff.js.map",
     "static/js/2.dbbcf691.chunk.js": "/fugr-ru-test/static/js/2.dbbcf691.chunk.js",
@@ -18,6 +18,6 @@
     "static/js/runtime-main.9861fdff.js",
     "static/js/2.dbbcf691.chunk.js",
     "static/css/main.d8dc4635.chunk.css",
-    "static/js/main.06764730.chunk.js"
+    "static/js/main.eb8ba7fd.chunk.js"
   ]
 }
