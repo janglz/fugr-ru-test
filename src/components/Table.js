@@ -87,9 +87,11 @@ class Table extends React.Component {
         ) :  (<h4>не найдено совпадений</h4>) 
 
         return (
-            <div>
-                {searchBar}
-                <AddUserForm onAddUser={this.props.onAddUser} />
+            <div className="table-container">
+                <div className="serch-bar-container">
+                    {searchBar}
+                    <AddUserForm onAddUser={this.props.onAddUser} />
+                </div>
                 {tableContent}
             </div>
         )
